@@ -17,9 +17,11 @@ public class Member {
     // TABLE strategy는 키 생성 전용 테이블을 하나 만들어서 데이터베이스 시퀀스를 흉내내는 전략
     @Id // 만 사용하면 PRIMARY KEY 직접 할당 의미. // IDENTITY 로 설정시 autoinc 지만 영속성 컨텍스트에서 동시성 이슈
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "MEMBER_SEQ_GENERATOR") // IDENTITY: 데이터베이스 위임
+    @Column(name = "MEMBER_ID")
     private Long id; // Long으로 간다. 10억 이상으로 그냥 해, Long 아니면 데이터베이스 연동도 안됨 어차피.
 
-    @Column(name = "name", nullable = false, length = 100) // not null, String에서만 length 사용
+
+    @Column(name = "USERNAME", nullable = false, length = 100) // not null, String에서만 length 사용
     private String username;
 
     private Integer age;
@@ -34,7 +36,38 @@ public class Member {
     @Transient   // 필드 매핑X, 데이터베이스에 저장X, 조회X
     private String ignore;
 
+    @ManyToOne // N : 1 관계 => 보통 N이 주인이다. "FK를 들고있으면 주인" , 상대는 읽기만 가능하도록 양방향 설정해준다.(mappedby)
+    @JoinColumn(name = "TEAM_ID")
+    private Team team;
 
     public Member() {
     }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public Team getTeam() {
+        return team;
+    }
+
+    public void setTeam(Team team) {
+        this.team = team;
+    }
+//    public void changeTeam(Team team) {
+//        this.team = team;
+//        team.getMembers().add(this);
+//    }
 }

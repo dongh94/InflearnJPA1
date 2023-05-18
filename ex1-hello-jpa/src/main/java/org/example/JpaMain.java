@@ -1,10 +1,12 @@
-package org.example.hellojpa;
+package org.example;
+
+import org.example.hellojpa.Member;
+import org.example.hellojpa.Team;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
-import java.util.List;
 
 public class JpaMain {
     public static void main(String[] args) {
@@ -66,6 +68,41 @@ public class JpaMain {
             // 8. 영속성 삭제
 //            Member member1 = em.find(Member.class, 100L);
 //            em.remove(member1);
+            // 9. 연관관계
+
+            Team team1 = new Team();
+            team1.setName("TeamA");
+            em.persist(team1);
+
+
+            Team team2 = new Team();
+            team2.setName("TeamB");
+            em.persist(team2);
+
+            Member member = new Member();
+            member.setUsername("member1");
+            member.setTeam(team1); // 이 때 !! team_id 까지 FK로 지정한다 JPA가.
+            em.persist(member);
+
+            // 양방향일 때 반드시 team에도 넣어줘야 한다.
+            team1.addMember(member);
+            // SQL 문을 직접 보고 싶을 때 사용.
+            em.flush(); // 영속성 컨텍스트 밀어넣기
+            em.clear(); // 영속성 스태이징 비우기 => 빈영속 상태
+
+            // 연관관계 등록(단방향) 및 수정
+//            Member member1 = em.find(Member.class, member.getId()); // 1차 캐시 상태란 말이다. => 양쪽 세팅해야 보임 add
+//            member1.setTeam(team2); // 연관관계 수정
+//            Team findteam = member1.getTeam();
+//            System.out.println("findteam = " + findteam.getName());
+
+            // 연관관계 주인 양방향 연결
+//            Member member1 = em.find(Member.class, member.getId()); // 1차 캐시 상태란 말이다. => 양쪽 세팅햐야 보임 add
+//            List<Member> members = member1.getTeam().getMembers();
+//            for (Member m : members) {
+//                System.out.println("m = " + m.getUsername());
+//            }
+
             // code
             // tx
             tx.commit(); // (SQL 필요한거 싹다 보낸다.)
