@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-public class Member {
+public class Member extends BaseEntity{
     @Id
     @GeneratedValue // 기본이 Auto => 데이터베이스 위임 autoincre
     @Column(name = "MEMBER_ID")
