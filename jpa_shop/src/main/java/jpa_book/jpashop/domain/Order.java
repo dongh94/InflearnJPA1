@@ -17,13 +17,17 @@ public class Order {
 //    private Long memberId;
 
     @ManyToOne
-    @JoinColumn(name = "MEMBER_ID") // FK 설정
+    @JoinColumn(name = "MEMBER_ID") // 반대 PK를 가지고 FK 설정
     private Member member;
 
-    @OneToMany(mappedBy = "order")
+    @OneToOne // Order를 1:1로 FK를 가진 주인
+    @JoinColumn(name = "DELIVERY_ID")
+    private Delivery delivery;
+
+    @OneToMany(mappedBy = "order") // OrderItem의 다 : 1의 읽기 전용
     private List<OrderItem> orderItems = new ArrayList<>();
 
-    public void addOrderItem(OrderItem orderItem) {
+    public void addOrderItem(OrderItem orderItem) { // 읽기 전용의 편의 메서드이자 영속성에서 동시성 오류 제거
         orderItem.setOrder(this);
         orderItems.add(orderItem);
     }

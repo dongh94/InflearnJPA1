@@ -15,10 +15,10 @@ public class Member {
     private String street;
     private String zipcode;
 
-    @OneToMany(mappedBy = "member")
+    @OneToMany(mappedBy = "member") // Orders 의 다 : 1 의 읽기전용
     private List<Order> orders = new ArrayList<>();
 
-    public void addOrder(Order order) {
+    public void addOrder(Order order) { // 읽기 전용이므로
         order.setMember(this);
         orders.add(order);
     }
