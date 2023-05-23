@@ -1,5 +1,7 @@
 package org.example;
 
+import org.example.hellojpa.ExtendsMapping.Item;
+import org.example.hellojpa.ExtendsMapping.Movie;
 import org.example.hellojpa.Member;
 import org.example.hellojpa.Team;
 
@@ -70,25 +72,40 @@ public class JpaMain {
 //            em.remove(member1);
             // 9. 연관관계
 
-            Team team1 = new Team();
-            team1.setName("TeamA");
-            em.persist(team1);
+//            Team team1 = new Team();
+//            team1.setName("TeamA");
+//            em.persist(team1);
+//
+//
+//            Team team2 = new Team();
+//            team2.setName("TeamB");
+//            em.persist(team2);
+//
+//            Member member = new Member();
+//            member.setUsername("member1");
+//            member.setTeam(team1); // 이 때 !! team_id 까지 FK로 지정한다 JPA가.
+//            em.persist(member);
+//
+//            // 양방향일 때 반드시 team에도 넣어줘야 한다.
+//            team1.addMember(member);
 
+            // 10. 상속관계
+            Movie movie = new Movie();
+            movie.setDirector("김감독");
+            movie.setActor("권배우");
+            movie.setName("6월8일의어느날");
+            movie.setPrice(10000);
 
-            Team team2 = new Team();
-            team2.setName("TeamB");
-            em.persist(team2);
+            em.persist(movie);
 
-            Member member = new Member();
-            member.setUsername("member1");
-            member.setTeam(team1); // 이 때 !! team_id 까지 FK로 지정한다 JPA가.
-            em.persist(member);
-
-            // 양방향일 때 반드시 team에도 넣어줘야 한다.
-            team1.addMember(member);
             // SQL 문을 직접 보고 싶을 때 사용.
             em.flush(); // 영속성 컨텍스트 밀어넣기
             em.clear(); // 영속성 스태이징 비우기 => 빈영속 상태
+
+
+            // 상속관계
+            Movie findMoive = em.find(Movie.class, movie.getId());
+            System.out.println("findMoive = " + findMoive);
 
             // 연관관계 등록(단방향) 및 수정
 //            Member member1 = em.find(Member.class, member.getId()); // 1차 캐시 상태란 말이다. => 양쪽 세팅해야 보임 add

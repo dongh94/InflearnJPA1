@@ -1,7 +1,9 @@
 package org.example.hellojpa;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 // Entity(JPA 관리)
 // 기본 생성자 필수(파라미터가 없는 public 또는 protected 생성자)
@@ -13,7 +15,7 @@ import java.util.Date;
         sequenceName = "MEMBER_SEQ",
         initialValue = 1, allocationSize = 50
 )
-public class Member {
+public class Member extends BaseEntity{
     // TABLE strategy는 키 생성 전용 테이블을 하나 만들어서 데이터베이스 시퀀스를 흉내내는 전략
     @Id // 만 사용하면 PRIMARY KEY 직접 할당 의미. // IDENTITY 로 설정시 autoinc 지만 영속성 컨텍스트에서 동시성 이슈
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "MEMBER_SEQ_GENERATOR") // IDENTITY: 데이터베이스 위임
@@ -37,10 +39,20 @@ public class Member {
     private String ignore;
 
     @ManyToOne // N : 1 관계 => 보통 N이 주인이다. "FK를 들고있으면 주인" , 상대는 읽기만 가능하도록 양방향 설정해준다.(mappedby)
-    @JoinColumn(name = "TEAM_ID")
+    @JoinColumn(name = "TEAM_ID") // 반대의 PK
     private Team team;
 
+    @OneToOne // 1 : 1 관계 => 반대에 mappedby 해주면 된다. 그럼 내가 FK로 가진 것.
+    @JoinColumn(name = "LOCKER_ID") // 반대의 PK
+    private Locker locker;
+
+//    @ManyToMany
+//    @JoinTable(name = "MEMBER_PRODUCT") 다 : 다는 조인 테이블을 넣어준다. 근데 너무 단순해
+    @OneToMany(mappedBy = "member") // 1 : 다의 연관관계 조인테이블에 해당하는 클래스를 만들어서 기능까지 추가하면서 처리해준다.
+    private List<MemberProduct> memberProducts = new ArrayList<>();
+
     public Member() {
+
     }
 
     public Long getId() {
