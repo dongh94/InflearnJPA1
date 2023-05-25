@@ -16,15 +16,15 @@ public class Order extends BaseEntity{
 //    @Column(name = "MEMBER_ID")
 //    private Long memberId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MEMBER_ID") // 반대 PK를 가지고 FK 설정
     private Member member;
 
-    @OneToOne // Order를 1:1로 FK를 가진 주인
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL) // Order를 1:1로 FK를 가진 주인
     @JoinColumn(name = "DELIVERY_ID")
     private Delivery delivery;
 
-    @OneToMany(mappedBy = "order") // OrderItem의 다 : 1의 읽기 전용
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL) // OrderItem의 다 : 1의 읽기 전용
     private List<OrderItem> orderItems = new ArrayList<>();
 
     public void addOrderItem(OrderItem orderItem) { // 읽기 전용의 편의 메서드이자 영속성에서 동시성 오류 제거

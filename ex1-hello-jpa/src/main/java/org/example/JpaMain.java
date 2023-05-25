@@ -10,6 +10,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
+import java.util.List;
 
 public class JpaMain {
     public static void main(String[] args) {
@@ -100,21 +101,47 @@ public class JpaMain {
 //            em.persist(movie);
             // 프록시 특징
 //            em.getReference()
-            // 프록시 초기화할 떄만 DB에 요청 => 추후 요청시 DB 쿼리 안날림
-            // 그렇다고 프록시가 실제와 바뀌는것 아님
+            // 프록시 초기화할 떄만 DB에 요청 => 초기화 이전과 이후 요청시 DB 쿼리 안날림 (성능개선에 유리)
+            // 그렇다고 프록시가 실제와 바뀌는것 아님 !!!
             // 타입 체크시 == 말고 instanceof 를 사용해야 함.
             // 영속성에서 이미 em.find()로 찾은 건 바로 다음 em.getReference()로 해도 둘다 실제다.
             // ? => JPA는 영속성 컨테이너 안에서 == 이 보장되어야 함.
-            Member member = new Member();
-            member.setUsername("member");
-            em.persist(member);
+//
+//            Member member = new Member();
+//            member.setUsername("member");
+//            em.persist(member);
+
+            // 지연로딩과 즉시로딩
+            // FetchType.LAZY  : FK가 묶인 것끼리 찾는게 덜할 때 : 프록시로 지연로딩해서 초기화X 땐 쿼리 안날림.
+            // FetchType.EAGER : FK가 묶인 것끼리 계속 찾을때 : 즉시 모두 로딩
+            // 즉시로딩을 사용하면 예상하지 못한 SQL이 나갈 수 있다. 즉 find할 때 연관된거 다 로딩되니까
+            // 즉, JPQL에서 1 + N 문제가 일어난다는 의미. createQuery할 때 즉시 로딩되니까
+            // 즉 연관된거 MTO, OTO은 기본이 eager이기에 에 모두 FetchType.LAZY 해주고,
+
+            // 그냥 일단 모든 연관관계는 LAZY로 해서 Proxy로 거쳐가라 => 쿼리 안날리니까/
+            // 방법 3가지가 있다. 1. FetchJoin으로 필요한 것만 조인.
+
+            // Casecade
+            // 단순 영속성 전이 = 단일 소유자만 = 영속성에 껴준다는 의미.
+
+            // 고아객체
+            // 단일 소유자만
+            // 부모 엔티티와 연관관계가 끊어진 자식 엔티티를 자동으로 제거.
+//            orphanRemoval = ture // 고아 객체 제거하겠다는 의미로 Parent의 OneToMany()에 넣어준다.
+
+            // Casecade 와 orphanRemoval = ture 를 모두 키면 부모 엔티티를 통해 자식 엔티티 생명주기를 결정할 수 있다.
+
+
             // SQL 문을 직접 보고 싶을 때 사용.
             em.flush(); // 영속성 컨텍스트 밀어넣기
             em.clear(); // 영속성 스태이징 비우기 => 빈영속 상태
+            // 지연로딩과 즉시로딩
+            List<Member> members = em.createQuery("select m from Member m join fetch m.team", Member.class).getResultList();
+            // 즉시로딩할 때 연관된거 모두다 가져오게된다.
 
             // 프록시
-            Member reference = em.getReference(Member.class, member.getId()); // 초기화 X Proxy
-            System.out.println("reference = " + reference); //
+//            Member reference = em.getReference(Member.class, member.getId()); // 초기화 X Proxy
+//            System.out.println("reference = " + reference); //
 //            System.out.println("emf.getPersistenceUnitUtil().isLoaded() = " + emf.getPersistenceUnitUtil().isLoaded(reference)); // 초기화여부
 //            Hibernate.initialize(reference); // 강제초기화 방법
 //            reference.getUsername() // JPA는 강제초기화가 없으므로 강제 호출

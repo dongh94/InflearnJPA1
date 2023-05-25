@@ -12,7 +12,7 @@ public class Category extends BaseEntity {
 
     private String name;
 
-    @ManyToOne // 밑에랑 다 : 1 관계로 자기 자신을 쭉 조회하는 코드.
+    @ManyToOne(fetch = FetchType.LAZY) // 밑에랑 다 : 1 관계로 자기 자신을 쭉 조회하는 코드.
     @JoinColumn(name = "PARENT_ID")
     private Category parent;
 
