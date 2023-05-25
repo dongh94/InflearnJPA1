@@ -38,7 +38,8 @@ public class Member extends BaseEntity{
     @Transient   // 필드 매핑X, 데이터베이스에 저장X, 조회X
     private String ignore;
 
-    @ManyToOne // N : 1 관계 => 보통 N이 주인이다. "FK를 들고있으면 주인" , 상대는 읽기만 가능하도록 양방향 설정해준다.(mappedby)
+    // ManyToOne은 항상! LAZY 설정
+    @ManyToOne(fetch = FetchType.LAZY) // N : 1 관계 => 보통 N이 주인이다. "FK를 들고있으면 주인" , 상대는 읽기만 가능하도록 양방향 설정해준다.(mappedby)
     @JoinColumn(name = "TEAM_ID") // 반대의 PK
     private Team team;
 

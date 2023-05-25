@@ -4,6 +4,7 @@ import org.example.hellojpa.ExtendsMapping.Item;
 import org.example.hellojpa.ExtendsMapping.Movie;
 import org.example.hellojpa.Member;
 import org.example.hellojpa.Team;
+import org.hibernate.Hibernate;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -90,22 +91,45 @@ public class JpaMain {
 //            team1.addMember(member);
 
             // 10. 상속관계
-            Movie movie = new Movie();
-            movie.setDirector("김감독");
-            movie.setActor("권배우");
-            movie.setName("6월8일의어느날");
-            movie.setPrice(10000);
-
-            em.persist(movie);
-
+//            Movie movie = new Movie();
+//            movie.setDirector("김감독");
+//            movie.setActor("권배우");
+//            movie.setName("6월8일의어느날");
+//            movie.setPrice(10000);
+//
+//            em.persist(movie);
+            // 프록시 특징
+//            em.getReference()
+            // 프록시 초기화할 떄만 DB에 요청 => 추후 요청시 DB 쿼리 안날림
+            // 그렇다고 프록시가 실제와 바뀌는것 아님
+            // 타입 체크시 == 말고 instanceof 를 사용해야 함.
+            // 영속성에서 이미 em.find()로 찾은 건 바로 다음 em.getReference()로 해도 둘다 실제다.
+            // ? => JPA는 영속성 컨테이너 안에서 == 이 보장되어야 함.
+            Member member = new Member();
+            member.setUsername("member");
+            em.persist(member);
             // SQL 문을 직접 보고 싶을 때 사용.
             em.flush(); // 영속성 컨텍스트 밀어넣기
             em.clear(); // 영속성 스태이징 비우기 => 빈영속 상태
 
+            // 프록시
+            Member reference = em.getReference(Member.class, member.getId()); // 초기화 X Proxy
+            System.out.println("reference = " + reference); //
+//            System.out.println("emf.getPersistenceUnitUtil().isLoaded() = " + emf.getPersistenceUnitUtil().isLoaded(reference)); // 초기화여부
+//            Hibernate.initialize(reference); // 강제초기화 방법
+//            reference.getUsername() // JPA는 강제초기화가 없으므로 강제 호출
+
+//            em.detach(reference); // 만약 영속성이 준영속이 되면? !!!
+//            reference.setUsername("refer?"); // 초기화 할 때, 에러를 던진다. => Lazy 해야하는 이유
+
+//            Member member1 = em.find(Member.class, member.getId());
+//            System.out.println("member1 = " + member1); // 이미 영속성에 있으므로 Proxy
+
+//            System.out.println("member1 == reference = " + (member1 == reference)); // 항상 true
 
             // 상속관계
-            Movie findMoive = em.find(Movie.class, movie.getId());
-            System.out.println("findMoive = " + findMoive);
+//            Movie findMoive = em.find(Movie.class, movie.getId());
+//            System.out.println("findMoive = " + findMoive);
 
             // 연관관계 등록(단방향) 및 수정
 //            Member member1 = em.find(Member.class, member.getId()); // 1차 캐시 상태란 말이다. => 양쪽 세팅해야 보임 add
@@ -124,6 +148,7 @@ public class JpaMain {
             // tx
             tx.commit(); // (SQL 필요한거 싹다 보낸다.)
         } catch (Exception e) {
+            e.printStackTrace();
             // tx
             tx.rollback();
         } finally {
