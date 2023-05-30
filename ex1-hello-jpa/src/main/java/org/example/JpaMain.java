@@ -33,11 +33,11 @@ public class JpaMain {
 //            Member member = em.find(Member.class, 1L);
 //            System.out.println("memberId = " + member.getId());
 //            System.out.println("memberName = " + member.getName());
-            // 3. 회원 수정
+            // 3. 회원 수정 (변경감지 / 1차 캐시의 스냅샷)
 //            Member member = em.find(Member.class, 1L);
 //            member.setName("HelloJPA");
 
-            // 4. 회원 조회 ( JPQL = Entity 객체를 대상으로 검색하는 객체 지향 쿼리 = SQL 추상화해서 의존 X )
+            // 4. 회원 조회 ( JPQL = Entity 객체를 대상으로 검색하는 객체 지향 쿼리 = SQL 추상화해서 의존 X, 즉시 flush() )
 //            List<Member> resultList = em.createQuery("select m from Member as m", Member.class)
 //                    .setFirstResult(2)
 //                    .setMaxResults(3)
@@ -46,7 +46,7 @@ public class JpaMain {
 //            for (Member member : resultList) {
 //                System.out.println("member = " + member.getName());
 //            }
-            // 5. 영속성 컨텍스트 = git 스테이징과 같다, 1차 캐시와 같다 => 비영속이 "모두" 끝나고 영속성 코드가 랜더링된다.
+            // 5. 영속성 컨텍스트 = git 스테이징과 같다, 1차 캐시 => 비영속이 "모두" 끝나고 영속성 코드가 랜더링된다.
             // entity , SQL 전부 스테이징 된다.
 //            // 비영속
 //            Member member = new Member();
@@ -116,13 +116,13 @@ public class JpaMain {
             // FetchType.EAGER : FK가 묶인 것끼리 계속 찾을때 : 즉시 모두 로딩
             // 즉시로딩을 사용하면 예상하지 못한 SQL이 나갈 수 있다. 즉 find할 때 연관된거 다 로딩되니까
             // 즉, JPQL에서 1 + N 문제가 일어난다는 의미. createQuery할 때 즉시 로딩되니까
-            // 즉 연관된거 MTO, OTO은 기본이 eager이기에 에 모두 FetchType.LAZY 해주고,
+            // 즉 연관된거 MTO, OTO은 기본이 eager이기에 에 모두 FetchType.LAZY 해줘야 한다.
 
             // 그냥 일단 모든 연관관계는 LAZY로 해서 Proxy로 거쳐가라 => 쿼리 안날리니까/
             // 방법 3가지가 있다. 1. FetchJoin으로 필요한 것만 조인.
 
             // Casecade
-            // 단순 영속성 전이 = 단일 소유자만 = 영속성에 껴준다는 의미.
+            // 단순 영속성 전이 = 단일 소유자만 사용하는게 좋다 = 영속성에 껴준다는 의미.
 
             // 고아객체
             // 단일 소유자만
@@ -131,17 +131,20 @@ public class JpaMain {
 
             // Casecade 와 orphanRemoval = ture 를 모두 키면 부모 엔티티를 통해 자식 엔티티 생명주기를 결정할 수 있다.
 
+            // 값 타입 정리 필요 !!
 
+            
             // SQL 문을 직접 보고 싶을 때 사용.
-            em.flush(); // 영속성 컨텍스트 밀어넣기
+            em.flush(); // 영속성 컨텍스트 DB와 동기화
             em.clear(); // 영속성 스태이징 비우기 => 빈영속 상태
             // 지연로딩과 즉시로딩
-            List<Member> members = em.createQuery("select m from Member m join fetch m.team", Member.class).getResultList();
-            // 즉시로딩할 때 연관된거 모두다 가져오게된다.
+            // 즉시로딩할 때 연관된거 모두다 가져오게된다. (JPQL)
+//            List<Member> members = em.createQuery("select m from Member m join fetch m.team", Member.class).getResultList();
+
 
             // 프록시
 //            Member reference = em.getReference(Member.class, member.getId()); // 초기화 X Proxy
-//            System.out.println("reference = " + reference); //
+//            System.out.println("reference = " + reference);
 //            System.out.println("emf.getPersistenceUnitUtil().isLoaded() = " + emf.getPersistenceUnitUtil().isLoaded(reference)); // 초기화여부
 //            Hibernate.initialize(reference); // 강제초기화 방법
 //            reference.getUsername() // JPA는 강제초기화가 없으므로 강제 호출
