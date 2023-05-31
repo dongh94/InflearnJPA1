@@ -78,7 +78,24 @@ public class Main {
                 System.out.println("member1 = " + m.getUsername());
             }
 
+            em.flush();
+            em.clear();
+            // 조인
+            Team team = new Team();
+            team.setName("teamA");
+            em.persist(team);
 
+            Member member2 = new Member();
+            member2.setUsername("member101");
+            member2.setAge(101);
+            member2.setTeam(team);
+
+            em.persist(member2);
+            String innerjoin = "select m from Member as m inner join m.team t";
+            String leftouterjoin = "select m from Member as m left outer join m.team t";
+            String setajoin = "select m from Member m, Team t where m.username = t.name";
+            List<Member> resultList4 = em.createQuery(leftouterjoin, Member.class)
+                    .getResultList();
             // code
             // tx
             tx.commit(); // (SQL 필요한거 싹다 보낸다.)
